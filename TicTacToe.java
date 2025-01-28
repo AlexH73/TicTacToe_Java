@@ -156,7 +156,7 @@ public class TicTacToe {
                 gameMap[2][0].equals(player)) {
             return true;
         }
-    return false;
+        return false;
     }
 
     /**
