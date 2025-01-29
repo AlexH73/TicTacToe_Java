@@ -17,8 +17,7 @@ public class TicTacToe {
         while (true) {
             // Ход пользователя
             while (!userMove()) {
-                // повторяем ход пользователя, пока ввод не корректен
-                System.out.println("Ввод не корректен, попробуйте еще раз.");
+                // Повторяем ход пользователя, пока ввод некорректен
             }
             printGameMap();
 
@@ -36,7 +35,7 @@ public class TicTacToe {
             botMove();
             printGameMap();
 
-            if (checkWinner("0")) {
+            if (checkWinner("O")) {
                 System.out.println("\nБот победил! Не расстраивайтесь, повезет в другой раз.");
                 break;
             }
@@ -103,9 +102,14 @@ public class TicTacToe {
      */
     private static void botMove() {
         int[] bestMove = bot.findBestMove();
-        if (bestMove[0] != -1) {
-            gameMap[bestMove[1]][bestMove[0]] = "O";
+        if (bestMove[0] == -1) {
+            if (checkDraw()) {
+                System.out.println("\nНичья! На поле не осталось свободных клеток.");
+                System.exit(0);
+            }
+            return;
         }
+        gameMap[bestMove[1]][bestMove[0]] = "O";
     }
 
     /**
