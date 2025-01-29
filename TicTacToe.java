@@ -8,8 +8,10 @@ public class TicTacToe {
     private static String[][] gameMap = new String[3][3];
     private static Scanner scanner = new Scanner(System.in);
     private static Random random = new Random();
+    private static Bot bot;
 
     public static void main(String[] args) {
+        bot = new Bot(gameMap, "O", "X");
         System.out.println("Добро пожаловать в игру Крестики-нолики!\n");
         printGameMap();
         while (true) {
@@ -100,17 +102,9 @@ public class TicTacToe {
      * Реализует ход бота, выбирая случайную свободную клетку.
      */
     private static void botMove() {
-        List<int[]> freeCells = new ArrayList<>();
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                if (gameMap[y][x] == null) {
-                    freeCells.add(new int[]{x, y});
-                }
-            }
-        }
-        if (!freeCells.isEmpty()) {
-            int[] choice = freeCells.get(random.nextInt(freeCells.size()));
-            gameMap[choice[1]][choice[0]] = "0";
+        int[] bestMove = bot.findBestMove();
+        if (bestMove[0] != -1) {
+            gameMap[bestMove[1]][bestMove[0]] = "O";
         }
     }
 
