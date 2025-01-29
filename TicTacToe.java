@@ -50,18 +50,16 @@ public class TicTacToe {
      * Выводит текущее состояние игрового поля с нумерацией строк и столбцов.
      */
     private static void printGameMap() {
-        System.out.println(" x  0  1  2");
-        System.out.println("y   ---------");
+        System.out.println(" x  0   1   2");
+        System.out.println("y  ------------");
         for (int y = 0; y < 3; y++) {
-            System.out.println(y + " | ");
+            System.out.print(y + " | ");
             for (int x = 0; x < 3; x++) {
-                if (gameMap[y][x] == null) {
-                    System.out.println("_   ");
-                } else {
-                    System.out.println(gameMap[y][x] + "  ");
-                }
+                String cell = gameMap[y][x] == null ? "_" : gameMap[y][x];
+                System.out.print(cell + " | ");
             }
             System.out.println();
+            System.out.println("   ------------");
         }
     }
 
@@ -72,13 +70,17 @@ public class TicTacToe {
     private static boolean userMove() {
         while (true) {
             try {
-                System.out.println("Введите координаты (x y) через пробел (например, 0 1): ");
+                System.out.print("Введите координаты (x y) через пробел (например, 0 1): ");
                 String input = scanner.nextLine();
                 String[] coordinates = input.split(" ");
+                if (coordinates.length != 2) {
+                    System.out.println("Ошибка: Некорректный ввод. Введите два целых числа через пробел.");
+                    continue;
+                }
                 int x = Integer.parseInt(coordinates[0]);
                 int y = Integer.parseInt(coordinates[1]);
-                if (!(x >= 0 && x < 3 && y > 0 && y < 3)) {
-                    System.out.println("Ошибка: Координаты должны быть целыми числами от 0 до 2");
+                if (!(x >= 0 && x < 3 && y >= 0 && y < 3)) {
+                    System.out.println("Ошибка: Координаты должны быть целыми числами от 0 до 2.");
                     continue;
                 }
                 if (gameMap[y][x] != null) {
@@ -87,7 +89,8 @@ public class TicTacToe {
                 }
                 gameMap[y][x] = "X";
                 return true;
-            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+
+            } catch (NumberFormatException e) {
                 System.out.println("Ошибка: Некорректный ввод. Введите два целых числа через пробел.");
             }
         }
@@ -119,40 +122,42 @@ public class TicTacToe {
         // Проверка горизонталей
         for (int y = 0; y < 3; y++) {
             if (gameMap[y][0] != null &&
-                    gameMap[y][0].equals(player) &&
                     gameMap[y][1] != null &&
-                    gameMap[y][1].equals(player) &&
                     gameMap[y][2] != null &&
+                    gameMap[y][0].equals(player) &&
+                    gameMap[y][1].equals(player) &&
                     gameMap[y][2].equals(player)) {
                 return true;
             }
         }
+
         // Проверка вертикалей
         for (int x = 0; x < 3; x++) {
             if (gameMap[0][x] != null &&
-                    gameMap[0][0].equals(player) &&
-                    gameMap[1][1] != null &&
-                    gameMap[1][1].equals(player) &&
-                    gameMap[2][2] != null &&
-                    gameMap[2][2].equals(player)) {
+                    gameMap[1][x] != null &&
+                    gameMap[2][x] != null &&
+                    gameMap[0][x].equals(player) &&
+                    gameMap[1][x].equals(player) &&
+                    gameMap[2][x].equals(player)) {
                 return true;
             }
         }
+
         // Проверка диагоналей
         if (gameMap[0][0] != null &&
-                gameMap[0][0].equals(player) &&
                 gameMap[1][1] != null &&
-                gameMap[1][1].equals(player) &&
                 gameMap[2][2] != null &&
+                gameMap[0][0].equals(player) &&
+                gameMap[1][1].equals(player) &&
                 gameMap[2][2].equals(player)) {
             return true;
         }
 
         if (gameMap[0][2] != null &&
-                gameMap[0][2].equals(player) &&
                 gameMap[1][1] != null &&
-                gameMap[1][1].equals(player) &&
                 gameMap[2][0] != null &&
+                gameMap[0][2].equals(player) &&
+                gameMap[1][1].equals(player) &&
                 gameMap[2][0].equals(player)) {
             return true;
         }
