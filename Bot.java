@@ -7,12 +7,20 @@ public class Bot {
     private String botPlayer;
     private String humanPlayer;
 
+    // Константы для оценки
+    private static final int WIN_SCORE = 10;
+    private static final int LOSE_SCORE = -10;
+    private static final int DRAW_SCORE = 0;
+
     public Bot(String[][] gameMap, String botPlayer, String humanPlayer) {
         this.gameMap = gameMap;
         this.botPlayer = botPlayer;
         this.humanPlayer = humanPlayer;
     }
 
+    /**
+     * Находит лучший ход для бота с использованием алгоритма минимакс.
+     */
     public int[] findBestMove() {
         int[] bestMove = {-1, -1};
         int bestScore = Integer.MIN_VALUE;
@@ -35,15 +43,18 @@ public class Bot {
         return bestMove;
     }
 
+    /**
+     * Реализует алгоритм минимакс для оценки ходов.
+     */
     private int minimax(String[][] board, int depth, boolean isMaximizingPlayer) {
         if (checkWinner(board, botPlayer)) {
-            return 10; // Выигрыш для бота
+            return WIN_SCORE - depth; // Чем быстрее победа, тем выше оценка
         }
         if (checkWinner(board, humanPlayer)) {
-            return -10; // Выигрыш для человека
+            return depth + LOSE_SCORE; // Чем быстрее победа человека, тем ниже оценка
         }
         if (checkDraw(board)) {
-            return 0; // Ничья
+            return DRAW_SCORE; // Ничья
         }
 
         if (isMaximizingPlayer) {
@@ -75,59 +86,43 @@ public class Bot {
         }
     }
 
-
+    /**
+     * Проверяет, выиграл ли указанный игрок.
+     */
     private boolean checkWinner(String[][] board, String player) {
         // Проверка горизонталей
         for (int y = 0; y < 3; y++) {
-            if (board[y][0] != null &&
-                    board[y][1] != null &&
-                    board[y][2] != null &&
-                    board[y][0].equals(player) &&
-                    board[y][1].equals(player) &&
-                    board[y][2].equals(player)) {
+            if (player.equals(board[y][0]) && player.equals(board[y][1]) && player.equals(board[y][2])) {
                 return true;
             }
         }
         // Проверка вертикалей
         for (int x = 0; x < 3; x++) {
-            if (board[0][x] != null &&
-                    board[1][x] != null &&
-                    board[2][x] != null &&
-                    board[0][x].equals(player) &&
-                    board[1][x].equals(player) &&
-                    board[2][x].equals(player)) {
+            if (player.equals(board[0][x]) && player.equals(board[1][x]) && player.equals(board[2][x])) {
                 return true;
             }
         }
         // Проверка диагоналей
-        if (board[0][0] != null &&
-                board[1][1] != null &&
-                board[2][2] != null &&
-                board[0][0].equals(player) &&
-                board[1][1].equals(player) &&
-                board[2][2].equals(player)) {
+        if (player.equals(board[0][0]) && player.equals(board[1][1]) && player.equals(board[2][2])) {
             return true;
         }
-
-        if (board[0][2] != null &&
-                board[1][1] != null &&
-                board[2][0] != null &&
-                board[0][2].equals(player) &&
-                board[1][1].equals(player) &&
-                board[2][0].equals(player)){
+        if (player.equals(board[0][2]) && player.equals(board[1][1]) && player.equals(board[2][0])) {
             return true;
         }
         return false;
     }
 
+    /**
+     * Проверяет, является ли текущее состояние игры ничьей.
+     */
     private boolean checkDraw(String[][] board) {
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
                 if (board[y][x] == null) {
-                    return false;
+                    return false; // Есть свободные клетки
                 }
             }
         }
-        return true;
+        return true; // Все клетки заняты
     }
 }

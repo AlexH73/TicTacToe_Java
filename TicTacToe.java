@@ -1,13 +1,9 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class TicTacToe {
 
     private static String[][] gameMap = new String[3][3];
     private static Scanner scanner = new Scanner(System.in);
-    private static Random random = new Random();
     private static Bot bot;
 
     public static void main(String[] args) {
@@ -17,7 +13,7 @@ public class TicTacToe {
         while (true) {
             // Ход пользователя
             while (!userMove()) {
-                // Повторяем ход пользователя, пока ввод некорректен
+                System.out.println("Ввод не корректен, попробуйте еще раз.");
             }
             printGameMap();
 
@@ -98,16 +94,12 @@ public class TicTacToe {
     }
 
     /**
-     * Реализует ход бота, выбирая случайную свободную клетку.
+     * Реализует ход бота, используя минимакс.
      */
     private static void botMove() {
         int[] bestMove = bot.findBestMove();
         if (bestMove[0] == -1) {
-            if (checkDraw()) {
-                System.out.println("\nНичья! На поле не осталось свободных клеток.");
-                System.exit(0);
-            }
-            return;
+            return; // Ничья обрабатывается в основном цикле
         }
         gameMap[bestMove[1]][bestMove[0]] = "O";
     }
@@ -119,44 +111,32 @@ public class TicTacToe {
     private static boolean checkWinner(String player) {
         // Проверка горизонталей
         for (int y = 0; y < 3; y++) {
-            if (gameMap[y][0] != null &&
-                    gameMap[y][1] != null &&
-                    gameMap[y][2] != null &&
-                    gameMap[y][0].equals(player) &&
-                    gameMap[y][1].equals(player) &&
-                    gameMap[y][2].equals(player)) {
+            if (player.equals(gameMap[y][0])
+                    && player.equals(gameMap[y][1])
+                    && player.equals(gameMap[y][2])) {
                 return true;
             }
         }
 
         // Проверка вертикалей
         for (int x = 0; x < 3; x++) {
-            if (gameMap[0][x] != null &&
-                    gameMap[1][x] != null &&
-                    gameMap[2][x] != null &&
-                    gameMap[0][x].equals(player) &&
-                    gameMap[1][x].equals(player) &&
-                    gameMap[2][x].equals(player)) {
+            if (player.equals(gameMap[0][x])
+                    && player.equals(gameMap[1][x])
+                    && player.equals(gameMap[2][x])) {
                 return true;
             }
         }
 
         // Проверка диагоналей
-        if (gameMap[0][0] != null &&
-                gameMap[1][1] != null &&
-                gameMap[2][2] != null &&
-                gameMap[0][0].equals(player) &&
-                gameMap[1][1].equals(player) &&
-                gameMap[2][2].equals(player)) {
+        if (player.equals(gameMap[0][0])
+                && player.equals(gameMap[1][1])
+                && player.equals(gameMap[2][2])) {
             return true;
         }
 
-        if (gameMap[0][2] != null &&
-                gameMap[1][1] != null &&
-                gameMap[2][0] != null &&
-                gameMap[0][2].equals(player) &&
-                gameMap[1][1].equals(player) &&
-                gameMap[2][0].equals(player)) {
+        if (player.equals(gameMap[0][2])
+                && player.equals(gameMap[1][1])
+                && player.equals(gameMap[2][0])) {
             return true;
         }
         return false;
@@ -173,8 +153,121 @@ public class TicTacToe {
                 }
             }
         }
-        return false;
+        return true;
     }
 
-}
+    /**
+     * Класс Bot для реализации минимакса.
+     */
+    static class Bot {
+        private String[][] board;
+        private String botSymbol;
+        private String playerSymbol;
 
+        public Bot(String[][] board, String botSymbol, String playerSymbol) {
+            this.board = board;
+            this.botSymbol = botSymbol;
+            this.playerSymbol = playerSymbol;
+        }
+
+        public int[] findBestMove() {
+            int[] bestMove = new int[]{-1, -1};
+            int bestScore = Integer.MIN_VALUE;
+
+            for (int y = 0; y < 3; y++) {
+                for (int x = 0; x < 3; x++) {
+                    if (board[y][x] == null) {
+                        board[y][x] = botSymbol;
+                        int score = minimax(board, 0, false);
+                        board[y][x] = null;
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMove = new int[]{x, y};
+                        }
+                    }
+                }
+            }
+            return bestMove;
+        }
+
+        private int minimax(String[][] currentBoard, int depth, boolean isMaximizing) {
+            if (checkWin(currentBoard, botSymbol)) return 1;
+            if (checkWin(currentBoard, playerSymbol)) return -1;
+            if (isDraw(currentBoard)) return 0;
+
+            if (isMaximizing) {
+                int bestScore = Integer.MIN_VALUE;
+                for (int y = 0; y < 3; y++) {
+                    for (int x = 0; x < 3; x++) {
+                        if (currentBoard[y][x] == null) {
+                            currentBoard[y][x] = botSymbol;
+                            int score = minimax(currentBoard, depth + 1, false);
+                            currentBoard[y][x] = null;
+                            bestScore = Math.max(score, bestScore);
+                        }
+                    }
+                }
+                return bestScore;
+            } else {
+                int bestScore = Integer.MAX_VALUE;
+                for (int y = 0; y < 3; y++) {
+                    for (int x = 0; x < 3; x++) {
+                        if (currentBoard[y][x] == null) {
+                            currentBoard[y][x] = playerSymbol;
+                            int score = minimax(currentBoard, depth + 1, true);
+                            currentBoard[y][x] = null;
+                            bestScore = Math.min(score, bestScore);
+                        }
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        // Проверка победы игрока
+        private boolean checkWin(String[][] currentBoard, String player) {
+            // Горизонтали
+            for (int y = 0; y < 3; y++) {
+                if (currentBoard[y][0] != null && currentBoard[y][0].equals(player)
+                        && currentBoard[y][1] != null && currentBoard[y][1].equals(player)
+                        && currentBoard[y][2] != null && currentBoard[y][2].equals(player)) {
+                    return true;
+                }
+            }
+
+            // Вертикали
+            for (int x = 0; x < 3; x++) {
+                if (currentBoard[0][x] != null && currentBoard[0][x].equals(player)
+                        && currentBoard[1][x] != null && currentBoard[1][x].equals(player)
+                        && currentBoard[2][x] != null && currentBoard[2][x].equals(player)) {
+                    return true;
+                }
+            }
+
+            // Диагонали
+            if (currentBoard[0][0] != null && currentBoard[0][0].equals(player)
+                    && currentBoard[1][1] != null && currentBoard[1][1].equals(player)
+                    && currentBoard[2][2] != null && currentBoard[2][2].equals(player)) {
+                return true;
+            }
+
+            if (currentBoard[0][2] != null && currentBoard[0][2].equals(player)
+                    && currentBoard[1][1] != null && currentBoard[1][1].equals(player)
+                    && currentBoard[2][0] != null && currentBoard[2][0].equals(player)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // Проверка ничьи
+        private boolean isDraw(String[][] currentBoard) {
+            for (int y = 0; y < 3; y++) {
+                for (int x = 0; x < 3; x++) {
+                    if (currentBoard[y][x] == null) return false;
+                }
+            }
+            return true;
+        }
+    }
+}
