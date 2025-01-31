@@ -14,40 +14,86 @@ public class TicTacToe {
         System.out.print("Введите ваше имя: ");
         userName = username.nextLine();
         System.out.println("Привет, " + userName);
-        bot = new Bot(gameMap, "O", "X");
-        System.out.println("Добро пожаловать в игру Крестики-нолики!\n");
-        printGameMap();
-        while (true) {
-            // Ход пользователя
-            while (!userMove()) {
-                System.out.println("Ввод не корректен, попробуйте еще раз.");
-            }
+
+        boolean playAgain = true;
+        while (playAgain) {
+            // Инициализация новой игры
+            resetGameMap();
+            bot = new Bot(gameMap, "O", "X");
+            System.out.println("Добро пожаловать в игру Крестики-нолики!\n");
             printGameMap();
 
-            if (checkWinner("X")) {
-                System.out.println("\nПоздравляем! Вы победили!");
-                break;
-            }
-            if (checkDraw()) {
-                System.out.println("\nНичья! На поле не осталось свободных клеток.");
-                break;
+            // Основной игровой цикл
+            while (true) {
+                // Ход пользователя
+                while (!userMove()) {
+                    System.out.println("Ввод не корректен, попробуйте еще раз.");
+                }
+                printGameMap();
+
+                if (checkWinner("X")) {
+                    System.out.println("\nПоздравляем! Вы победили!");
+                    break;
+                }
+                if (checkDraw()) {
+                    System.out.println("\nНичья! На поле не осталось свободных клеток.");
+                    break;
+                }
+
+                // Ход бота
+                System.out.println("\nХод бота...");
+                botMove();
+                printGameMap();
+
+                if (checkWinner("O")) {
+                    System.out.println("\nБот победил! Не расстраивайтесь, повезет в другой раз.");
+                    break;
+                }
+                if (checkDraw()) {
+                    System.out.println("\nНичья! На поле не осталось свободных клеток.");
+                    break;
+                }
             }
 
-            // Ход бота
-            System.out.println("\nХод бота...");
-            botMove();
-            printGameMap();
+            // Спросить пользователя, хочет ли он сыграть снова
+            playAgain = askToPlayAgain();
+        }
 
-            if (checkWinner("O")) {
-                System.out.println("\nБот победил! Не расстраивайтесь, повезет в другой раз.");
-                break;
-            }
-            if (checkDraw()) {
-                System.out.println("\nНичья! На поле не осталось свободных клеток.");
-                break;
+        System.out.println("Спасибо за игру, " + userName + "! До встречи!");
+        scanner.close();
+    }
+
+    /**
+     * Сбрасывает игровое поле для новой игры.
+     */
+    private static void resetGameMap() {
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                gameMap[y][x] = null;
             }
         }
-        scanner.close();
+    }
+
+    /**
+     * Спрашивает пользователя, хочет ли он сыграть снова.
+     * Возвращает true, если пользователь хочет продолжить, иначе false.
+     */
+    private static boolean askToPlayAgain() {
+        while (true) {
+            System.out.println("Игра окончена!");
+            System.out.println("1. Играть еще раз");
+            System.out.println("2. Выйти");
+            System.out.print("Выберите действие: ");
+            String input = scanner.nextLine().trim();
+
+            if (input.equals("1")) {
+                return true; // Играть еще раз
+            } else if (input.equals("2")) {
+                return false; // Выйти
+            } else {
+                System.out.println("Ошибка: Введите '1' или '2'.");
+            }
+        }
     }
 
     /**
